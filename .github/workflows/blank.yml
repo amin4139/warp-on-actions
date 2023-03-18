@@ -1,0 +1,19 @@
+name: 'Install Warp'
+description: 'Install Cloudflare Warp Client on Github actions'
+
+runs:
+  using: composite
+  steps:
+    - name: Install warp-cli
+      continue-on-error: true
+      run: |
+        curl -s https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+        sudo apt -y update
+        sudo apt install -y cloudflare-warp
+        sudo warp-cli --accept-tos register
+        sudo warp-cli --accept-tos set-mode warp+doh
+        sudo warp-cli --accept-tos connect
+        sleep 1
+        sudo curl -s4m8 ip.sb
+      shell: bash
